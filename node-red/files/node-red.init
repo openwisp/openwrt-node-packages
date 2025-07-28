@@ -3,19 +3,28 @@
 START=99
 USE_PROCD=1
 
+boot() {
+	_BOOT=1 start
+}
+
 start_service() {
 	local log_stderr
 	local log_stdout
 	local test_setting
+	local datadir
 
 	config_load node-red
 	config_get port "common" port "1880"
+	config_get datadir "datadir" datadir "/root"
 	config_get_bool verbose "common" verbose "0"
 	config_get_bool log_stderr "common" log_stderr "0"
 	config_get_bool log_stdout "common" log_stdout "0"
 
+	[ "$_BOOT" = "1" ] &&
+		[ "$(procd_get_mountpoints "$datadir")" ] && return 0
+
 	procd_open_instance
-	procd_set_param env HOME=/root
+	procd_set_param env HOME="$datadir"
 	procd_set_param command /usr/bin/node --optimize_for_size --max_old_space_size=128 --gc_interval=100 /usr/bin/node-red
 	procd_append_param command --port "$port"
 	[ "$verbose" = "1" ] && procd_append_param command --verbose
@@ -24,4 +33,12 @@ start_service() {
 	procd_set_param term_timeout 60
 
 	procd_close_instance
+}
+
+service_triggers() {
+	local datadir
+
+	config_load node-red
+	config_get datadir "datadir" datadir "/root"
+	procd_add_restart_mount_trigger "$datadir"
 }
