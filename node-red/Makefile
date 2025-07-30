@@ -81,7 +81,7 @@ define Package/node-red/install
 	$(LN) ../lib/node/$(PKG_NPM_NAME)/node_modules/node-red-admin/node-red-admin.js \
 		$(1)/usr/bin/node-red-admin
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_BIN) ./files/node-red.conf $(1)/etc/config/node-red
+	$(INSTALL_CONF) ./files/node-red.conf $(1)/etc/config/node-red
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/node-red.init $(1)/etc/init.d/node-red
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
